@@ -35,7 +35,7 @@ export const verifyApiKey = async (req, res, next) => {
     }
 
     // Tạo apiKey từ thông tin người dùng
-    const generatedApiKey = `mern-${authenticatedUser._id}-${authenticatedUser.email}-${authenticatedUser.apiKey}`;
+    const generatedApiKey = authenticatedUser.apiKey;
 
     console.log("generatedApiKey:", generatedApiKey);
 

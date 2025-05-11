@@ -1,19 +1,31 @@
-import Post from "../models/post.js";
-export const createPost = async (req , res) => {
-    const {content} = req.body;
-    const {userId} = req.user;
-    if(!content){
-        return res.status(400).json({ message: "Nội dung bài viết là bắt buộc!" });
+import Post from "../models/post.js"; // Đảm bảo import đúng
+
+export const createPost = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const user = req.user; // Có từ middleware verifyApiKey
+
+    if (!user || !user._id) {
+      return res.status(401).json({ message: "Người dùng không hợp lệ." });
     }
-    try{
-        const newPost = new Post ({
-            userId ,
-            content,
-        });
-        await newPost.save();
-        return res.status(201).json({ message: "Bài viết đã được tạo thành công!", post: newPost });
-    }catch(err){
-        console.error("Lỗi khi tạo bài viết:", err);
-        return res.status(500).json({ message: "Lỗi server khi tạo bài viết." });
+
+    if (!content) {
+      return res.status(400).json({ message: "Nội dung không được để trống." });
     }
-}
+
+    const newPost = new Post({
+      userId: user._id,
+      content: content,
+    });
+
+    await newPost.save(); // 👈 nhớ await
+
+    res.status(201).json({
+      message: "Tạo bài viết thành công!",
+      post: newPost,
+    });
+  } catch (error) {
+    console.error("Lỗi tạo bài viết:", error); // 👈 debug ở đây
+    res.status(500).json({ message: "Lỗi server khi tạo bài viết." });
+  }
+};
